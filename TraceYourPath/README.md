@@ -27,3 +27,6 @@ Start dev mode
 > yarn add prettier
 
 Then in VSCode, add the "Prettier - Code formatter" extension.
+
+#### sass
+> yarn add sass
