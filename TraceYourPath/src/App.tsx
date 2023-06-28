@@ -9,7 +9,7 @@ function App() {
   
   const [selectedFile, setFile] = useState<File>();
   const [fileContent, setFileContent] = useState<string | ArrayBuffer | null>();
-
+  
   const AppOnFileSelectSuccess = (file: File) =>
   {
     var reader = new FileReader();
@@ -18,24 +18,37 @@ function App() {
       {
         return;
       }
-
+      
       setFileContent((fileContent) => {
-          return fileContent = reader.result;
+        return fileContent = reader.result;
       });
-
+      
       setFile((selectedFile) => { return selectedFile = file; });
       
       sportFileParsing(file, reader.result);
-    };    
-    reader.readAsText(file);    
-  };
+    };
 
+    let fileExtension = file.name.split('.').pop();
+    switch(fileExtension)
+    {   
+      case "fit":
+      {
+        reader.readAsArrayBuffer(file);  
+        break;
+      }
+      default: {
+        reader.readAsText(file);  
+        break;
+      }  
+    }
+  };
+  
   const sportFileParsing = (pfile: File, pfileContent: string | ArrayBuffer | null) => {
     if (pfile == null || pfileContent == null)
     {
       return;
     }
-
+    
     let fileExtension = pfile.name.split('.').pop();
     switch(fileExtension)
     {
@@ -47,46 +60,46 @@ function App() {
         break;
       }
       case "fit":
-        {
-          // NOT WORKING
-          SportsLib.importFromFit(pfileContent as ArrayBuffer).then((ev)=>{
-            console.log(ev);
-          });
-          break;
-        }
+      {
+        SportsLib.importFromFit(pfileContent as ArrayBuffer).then((ev)=>{
+          console.log(ev);
+        });
+        break;
+      }
       case "tcx":
-        {
-          let parser = new DOMParser();
-          let doc = parser.parseFromString(pfileContent as string, "application/xml");
-          SportsLib.importFromTCX(doc).then((ev) => {
-              console.log(ev);          
-          });
-          break;
-        }
+      {
+        let parser = new DOMParser();
+        let doc = parser.parseFromString(pfileContent as string, "application/xml");
+        SportsLib.importFromTCX(doc).then((ev) => {
+          console.log(ev);          
+        });
+        break;
+      }
       default:
       {        
         break;
       }
     }
   };
-
+  
   const AppOnError = (ex: any) => {
     alert(ex);
   };
-
+  
   return (
     <>
-      <h1>Hey</h1>
-      <form>
-      
-      <FileUploader
-          onFileSelectSuccess={AppOnFileSelectSuccess}
-          onFileSelectError={AppOnError}
-        />
-
-      </form>
+    <h1>Hey</h1>
+    <form>
+    
+    <FileUploader
+    onFileSelectSuccess={AppOnFileSelectSuccess}
+    onFileSelectError={AppOnError}
+    />
+    
+    </form>
     </>
-  )
-}
-
-export default App
+    )
+  }
+  
+  export default App
+  
