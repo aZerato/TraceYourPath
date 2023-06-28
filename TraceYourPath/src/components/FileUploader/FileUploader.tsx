@@ -29,7 +29,7 @@ function FileUploader(Props: FileUploaderProps)
     <div>
       <input type="file" onChange={handleFileChange} />
 
-      <div>{file && `${file.name} - ${file.type}`}</div>
+      <div>{file && file.name}</div>
     </div>
   );
 }

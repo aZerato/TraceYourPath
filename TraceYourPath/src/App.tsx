@@ -1,14 +1,77 @@
 import React, { useState } from "react";
-import FileUploader from "./components/FileUploader/FileUploader";
+import {SportsLib} from '@sports-alliance/sports-lib'; 
+import {DOMParser} from '@xmldom/xmldom';
+
 import './App.scss'
+import FileUploader from "./components/FileUploader/FileUploader";
 
 function App() {
   
   const [selectedFile, setFile] = useState<File>();
+  const [fileContent, setFileContent] = useState<string | ArrayBuffer | null>();
 
   const AppOnFileSelectSuccess = (file: File) =>
   {
-    setFile(file);
+    var reader = new FileReader();
+    reader.onload = () => {
+      if (file === undefined || reader.result === undefined)
+      {
+        return;
+      }
+
+      setFileContent((fileContent) => {
+          return fileContent = reader.result;
+      });
+
+      setFile((selectedFile) => { return selectedFile = file; });
+      
+      sportFileParsing(file, reader.result);
+    };    
+    reader.readAsText(file);    
+  };
+
+  const sportFileParsing = (pfile: File, pfileContent: string | ArrayBuffer | null) => {
+    if (pfile == null || pfileContent == null)
+    {
+      return;
+    }
+
+    let fileExtension = pfile.name.split('.').pop();
+    switch(fileExtension)
+    {
+      case "gpx":
+      {
+        SportsLib.importFromGPX(pfileContent as string).then((ev) => {
+          console.log(ev);
+        });
+        break;
+      }
+      case "fit":
+        {
+          // NOT WORKING
+          SportsLib.importFromFit(pfileContent as ArrayBuffer).then((ev)=>{
+            console.log(ev);
+          });
+          break;
+        }
+      case "tcx":
+        {
+          let parser = new DOMParser();
+          let doc = parser.parseFromString(pfileContent as string, "application/xml");
+          SportsLib.importFromTCX(doc).then((ev) => {
+              console.log(ev);          
+          });
+          break;
+        }
+      default:
+      {        
+        break;
+      }
+    }
+  };
+
+  const AppOnError = (ex: any) => {
+    alert(ex);
   };
 
   return (
@@ -18,7 +81,7 @@ function App() {
       
       <FileUploader
           onFileSelectSuccess={AppOnFileSelectSuccess}
-          onFileSelectError={({ error }) => alert(error)}
+          onFileSelectError={AppOnError}
         />
 
       </form>
