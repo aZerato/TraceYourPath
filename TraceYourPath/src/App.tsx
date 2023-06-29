@@ -3,7 +3,7 @@ import React, { useState } from "react";
 
 import './App.scss'
 import FileUploader from "./components/FileUploader/FileUploader";
-
+import FileUtilities from "./utils/FileUtilities/FileUtilities";
 import FileParserService from "./services/FileParser/FileParserService";
 
 function App() {
@@ -11,6 +11,9 @@ function App() {
   const [selectedFile, setFile] = useState<File>();
   const [fileContent, setFileContent] = useState<string | ArrayBuffer | null>();
   
+  const fileParserService = FileParserService();
+  const fileUtilities = FileUtilities();
+
   const AppOnFileSelectSuccess = (file: File) =>
   {
     var reader = new FileReader();
@@ -26,13 +29,13 @@ function App() {
       
       setFile((selectedFile) => { return selectedFile = file; });
       
-      FileParserService().sportFileParsing(file, reader.result);
+      fileParserService.sportFileParsing(file, reader.result);
     };
 
-    let fileExtension = file.name.split('.').pop();
+    let fileExtension = fileUtilities.getExtension(file);
     switch(fileExtension)
     {   
-      case "fit":
+      case fileParserService.SPORT_FILE_EXT.fit:
       {
         reader.readAsArrayBuffer(file);  
         break;
