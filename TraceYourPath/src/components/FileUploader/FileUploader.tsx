@@ -32,6 +32,6 @@ function FileUploader(Props: FileUploaderProps)
       <div>{file && file.name}</div>
     </div>
   );
-}
+};
 
 export default FileUploader;
