@@ -1,18 +1,21 @@
-import React, { useState } from "react";
-
+import { useState } from "react";
 
 import './App.scss'
 import FileUploader from "./components/FileUploader/FileUploader";
 import FileUtilities from "./utils/FileUtilities/FileUtilities";
-import FileParserService from "./services/FileParser/FileParserService";
+import FileParserService, {PropsSportFileParsing} from "./services/FileParser/FileParserService";
+import SwimSplitter from "./components/SwimSplitter/SwimSplitter";
+import { EventInterface } from "@sports-alliance/sports-lib/lib/events/event.interface";
 
 function App() {
   
   const [selectedFile, setFile] = useState<File>();
-  const [fileContent, setFileContent] = useState<string | ArrayBuffer | null>();
+  const [fileContent, setFileContent] = useState<string | ArrayBuffer | null | undefined>();
   
   const fileParserService = FileParserService();
   const fileUtilities = FileUtilities();
+
+  const [aEvent, setEvent] = useState<EventInterface>();
 
   const AppOnFileSelectSuccess = (file: File) =>
   {
@@ -29,7 +32,21 @@ function App() {
       
       setFile((selectedFile) => { return selectedFile = file; });
       
-      fileParserService.sportFileParsing(file, reader.result);
+      const propsSportFileParsing:PropsSportFileParsing = {
+        file: file,
+        fileContent: fileContent,
+        onFileReadSuccess: (ev) => {
+          console.info(ev);
+          setEvent((aEvent) => { 
+            return aEvent = ev; 
+          });
+        },
+        onFileReadError: (ev) => {
+          console.debug(ev);
+        }
+      };
+
+      fileParserService.sportFileParsing(propsSportFileParsing);
     };
 
     let fileExtension = fileUtilities.getExtension(file);
@@ -47,8 +64,6 @@ function App() {
     }
   };
   
-  
-  
   const AppOnError = (ex: any) => {
     alert(ex);
   };
@@ -58,11 +73,16 @@ function App() {
     <h1>Hey</h1>
     <form>
     
-    <FileUploader
-    onFileSelectSuccess={AppOnFileSelectSuccess}
-    onFileSelectError={AppOnError}
-    />
-    
+      <FileUploader
+        onFileSelectSuccess={AppOnFileSelectSuccess}
+        onFileSelectError={AppOnError}
+      />
+      
+      <SwimSplitter 
+        event={aEvent} />
+
+        <input type="reset" />
+
     </form>
     </>
     )

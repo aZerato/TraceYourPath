@@ -1,7 +1,15 @@
-import {SportsLib} from '@sports-alliance/sports-lib'; 
-import {DOMParser} from '@xmldom/xmldom';
+import { SportsLib } from '@sports-alliance/sports-lib'; 
+import { DOMParser } from '@xmldom/xmldom';
+import { EventInterface } from '@sports-alliance/sports-lib/lib/events/event.interface'; 
 
 import FileUtilities from "./../../utils/FileUtilities/FileUtilities";
+
+export interface PropsSportFileParsing {
+  file: File, 
+  fileContent: string | ArrayBuffer | null | undefined, 
+  onFileReadSuccess: (ev: EventInterface) => void,
+  onFileReadError: (ev: EventInterface) => void
+}
 
 function FileParserService()
 {
@@ -15,44 +23,54 @@ function FileParserService()
 
   const MIME_TYPE_XML = "application/xml";
 
-  const sportFileParsing = (pfile: File, pfileContent: string | ArrayBuffer | null) => {
-    if (pfile == null || pfileContent == null)
+  const sportFileParsing = (Props: PropsSportFileParsing) => {
+    try
     {
-      return;
+      if (Props.file == null || Props.fileContent == null)
+      {
+        return;
+      }
+      
+      let fileExtension = fileUtilities.getExtension(Props.file);
+      switch(fileExtension)
+      {
+        case SPORT_FILE_EXT.gpx:
+        {
+          SportsLib.importFromGPX(Props.fileContent as string).then((ev) => {
+            console.log(ev);
+            Props.onFileReadSuccess(ev);
+          });
+          break;
+        }
+        case SPORT_FILE_EXT.fit:
+        {
+          SportsLib.importFromFit(Props.fileContent as ArrayBuffer).then((ev)=>{
+            console.log(ev);
+            Props.onFileReadSuccess(ev);
+          });
+          break;
+        }
+        case SPORT_FILE_EXT.tcx:
+        {
+          let parser = new DOMParser();
+          let doc = parser.parseFromString(Props.fileContent as string, MIME_TYPE_XML);
+          SportsLib.importFromTCX(doc).then((ev) => {
+            console.log(ev);
+            Props.onFileReadSuccess(ev);
+          });
+          break;
+        }
+        default:
+        {
+          break;
+        }
+      }
     }
-    
-    let fileExtension = fileUtilities.getExtension(pfile);
-    switch(fileExtension)
+    catch(e: any)
     {
-      case SPORT_FILE_EXT.gpx:
-      {
-        SportsLib.importFromGPX(pfileContent as string).then((ev) => {
-          console.log(ev);
-        });
-        break;
-      }
-      case SPORT_FILE_EXT.fit:
-      {
-        SportsLib.importFromFit(pfileContent as ArrayBuffer).then((ev)=>{
-          console.log(ev);
-        });
-        break;
-      }
-      case SPORT_FILE_EXT.tcx:
-      {
-        let parser = new DOMParser();
-        let doc = parser.parseFromString(pfileContent as string, MIME_TYPE_XML);
-        SportsLib.importFromTCX(doc).then((ev) => {
-          console.log(ev);          
-        });
-        break;
-      }
-      default:
-      {        
-        break;
-      }
-    }
-  }
+      Props.onFileReadError(e);
+    }    
+  };
 
   return {
     SPORT_FILE_EXT,
