@@ -1,5 +1,7 @@
 import { ChangeEvent, useState } from 'react';
 
+import { Form } from 'react-bootstrap';
+
 interface FileUploaderProps
 {
     onFileSelectSuccess: (file: File) => void,
@@ -26,11 +28,16 @@ function FileUploader(Props: FileUploaderProps)
   };
 
   return (
-    <div>
-      <input type="file" onChange={handleFileChange} />
-
-      <div>{file && file.name}</div>
-    </div>
+    <Form.Group controlId="fileUploader">
+      <Form.Label>Choose your file</Form.Label>
+      <Form.Control type="file" onChange={handleFileChange} />
+      <Form.Text className="text-muted">
+        {
+          file && 
+          <span>File selected : {file.name}</span>
+        }
+      </Form.Text>
+    </Form.Group>
   );
 };
 

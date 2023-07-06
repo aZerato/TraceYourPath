@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 
+import { Container, Row, Col, Form, FormControl } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 import './App.scss'
 import FileUploader from "./components/FileUploader/FileUploader";
 import FileUtilities from "./utils/FileUtilities/FileUtilities";
@@ -71,22 +74,28 @@ function App() {
   };
   
   return (
-    <>
-    <h1>Hey</h1>
-    <form>
-    
-      <FileUploader
-        onFileSelectSuccess={AppOnFileSelectSuccess}
-        onFileSelectError={AppOnError}
-      />
-      
-      <SwimSplitter 
-        event={aEvent} />
-
-        <input type="reset" />
-
-    </form>
-    </>
+    <Container>
+      <h1>TraceYourPath</h1>
+      <Form>
+        <Row>
+          <Col className="mb-3">
+            <FileUploader
+              onFileSelectSuccess={AppOnFileSelectSuccess}
+              onFileSelectError={AppOnError}
+            />  
+          </Col>
+        </Row>
+        <Row>
+          <Col md={6}>
+            <SwimSplitter 
+              event={aEvent} />
+          </Col>
+          <Col md={6}>
+            <FormControl type="reset" />
+          </Col>
+        </Row>
+      </Form>
+    </Container>
     )
   }
   

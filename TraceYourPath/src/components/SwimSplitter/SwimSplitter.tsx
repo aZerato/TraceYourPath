@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import { Button, Col, Row } from 'react-bootstrap';
+
 import { EventInterface } from '@sports-alliance/sports-lib/lib/events/event.interface'; 
 import { ActivityInterface } from '@sports-alliance/sports-lib/lib/activities/activity.interface';
 import { LapInterface } from '@sports-alliance/sports-lib/lib/laps/lap.interface';
@@ -98,10 +100,24 @@ function SwimSplitter(Props: PropsSwimSplitter)
   };
 
   return (
-    <div>
-      <button type="button" onClick={swimRecalculate}>Recalculation</button>
-      <button type="button" onClick={exportTcxFile}>Export to Tcx</button>
-    </div>
+    <>
+      <Row>
+        <Col md={6}>
+          <Button variant="primary" 
+                  type="button"
+                  onClick={swimRecalculate}>
+            Recalculation
+          </Button>
+        </Col>
+        <Col md={6}>
+          <Button variant="secondary" 
+                  type="button"
+                  onClick={exportTcxFile}>
+            Export to Tcx
+          </Button>
+        </Col>
+      </Row>
+    </>
   );
 };
 
