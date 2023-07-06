@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import './App.scss'
 import FileUploader from "./components/FileUploader/FileUploader";
@@ -17,6 +17,24 @@ function App() {
 
   const [aEvent, setEvent] = useState<EventInterface>();
 
+  useEffect(() => {
+    const propsSportFileParsing:PropsSportFileParsing = {
+      file: selectedFile as File,
+      fileContent: fileContent,
+      onFileReadSuccess: (ev) => {
+        console.info(ev);
+        setEvent((aEvent) => { 
+          return aEvent = ev; 
+        });
+      },
+      onFileReadError: (ev) => {
+        console.debug(ev);
+      }
+    };
+
+    fileParserService.sportFileParsing(propsSportFileParsing);
+  }, [selectedFile, fileContent]);   
+
   const AppOnFileSelectSuccess = (file: File) =>
   {
     var reader = new FileReader();
@@ -30,23 +48,7 @@ function App() {
         return fileContent = reader.result;
       });
       
-      setFile((selectedFile) => { return selectedFile = file; });
-      
-      const propsSportFileParsing:PropsSportFileParsing = {
-        file: file,
-        fileContent: fileContent,
-        onFileReadSuccess: (ev) => {
-          console.info(ev);
-          setEvent((aEvent) => { 
-            return aEvent = ev; 
-          });
-        },
-        onFileReadError: (ev) => {
-          console.debug(ev);
-        }
-      };
-
-      fileParserService.sportFileParsing(propsSportFileParsing);
+      setFile((selectedFile) => { return selectedFile = file; });     
     };
 
     let fileExtension = fileUtilities.getExtension(file);
