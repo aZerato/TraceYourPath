@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Button, Col, Row } from 'react-bootstrap';
+import { Form, Button, Col, Row } from 'react-bootstrap';
 
 import { EventInterface } from '@sports-alliance/sports-lib/lib/events/event.interface'; 
 import { ActivityInterface } from '@sports-alliance/sports-lib/lib/activities/activity.interface';
@@ -15,7 +15,9 @@ export interface PropsSwimSplitter {
 
 function SwimSplitter(Props: PropsSwimSplitter) 
 {
-  const [sEvent, setEvent] = useState<EventInterface>()
+  const [sEvent, setEvent] = useState<EventInterface>();
+  const [wrongPoolSize, setWrongPoolSize] = useState<number>();
+  const [rightPoolSize, setRightPoolSize] = useState<number>();
 
   const swimRecalculate = async() => {
     if (Props === undefined ||
@@ -23,12 +25,20 @@ function SwimSplitter(Props: PropsSwimSplitter)
     {
       return; 
     }
+
+    if (wrongPoolSize === undefined || wrongPoolSize === 0)
+    {
+      return;
+    }
+
+    if (rightPoolSize === undefined || rightPoolSize === 0)
+    {
+      return;
+    }
     
     try 
     {
-        const wrongPoolSize: number = 25;
-        const correctPoolSize: number = 50;
-        const diffPoolSize: number = correctPoolSize / wrongPoolSize;
+        const diffPoolSize: number = rightPoolSize / wrongPoolSize;
 
         const activities:ActivityInterface[] = Props.event.getActivities();
 
@@ -99,8 +109,60 @@ function SwimSplitter(Props: PropsSwimSplitter)
     a.click();
   };
 
+  const updateValue = (defaultVal: number) => 
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+          let functSet = undefined;
+          if (e.target.name === "wrongPoolSize")
+          {
+            functSet = setWrongPoolSize;
+          }
+          else
+          {
+            functSet = setRightPoolSize;
+          }
+          
+          if (e.target.value === "") 
+          {
+            functSet((oldValue) => defaultVal);
+          } 
+          else 
+          {
+            functSet((oldValue) => {
+                  const newValue = parseInt(e.target.value);
+                  return isNaN(newValue) ? oldValue : newValue;
+              });
+          }
+  };
+
   return (
     <>
+      <Row>
+        <Col md={12}>
+          <h2>Swim split recalculation</h2>
+        </Col>
+        <Col md={6}>
+          <Form.Group className="mb-3" 
+                      controlId="SwimSplitWrongPoolSize">
+            <Form.Label>Wrong pool size</Form.Label>
+            <Form.Control type="number" 
+                          name="wrongPoolSize"
+                          placeholder="Enter the incorrect pool size" 
+                          value={wrongPoolSize || 25}
+                          onChange={updateValue(25)}/>
+          </Form.Group>
+        </Col>
+        <Col md={6}>
+          <Form.Group className="mb-3" 
+                      controlId="SwimSplitRightPoolSize">
+            <Form.Label>Right pool size</Form.Label>
+            <Form.Control type="number" 
+                          name="rightPoolSize"
+                          placeholder="Enter the correct pool size" 
+                          value={rightPoolSize || 50}
+                          onChange={updateValue(50)}/>
+          </Form.Group>
+        </Col>
+      </Row>
       <Row>
         <Col md={6}>
           <Button variant="primary" 
